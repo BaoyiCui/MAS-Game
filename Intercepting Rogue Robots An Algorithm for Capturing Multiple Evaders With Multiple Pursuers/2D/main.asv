@@ -1,0 +1,61 @@
+clear;
+clc;
+close all;
+
+xbound = [-10,10];
+ybound = [-10,10];
+
+xlim(xbound);
+ylim(ybound);
+
+
+n_p = 4; % number of pursuers
+n_e = 8; % number of evaders
+
+pursuers = cell(1, n_p);
+evaders = cell(1, n_e);
+
+% initialize the pursuers
+for i=1:n_p
+    pos = rand(1,2);
+    pos(1,1) = pos(1,1) * (xbound(2) - xbound(1)) + xbound(1);
+    pos(1,2) = pos(1,2) * (ybound(2) - ybound(1)) + ybound(1);
+    pursuers{i} = Pursuer(pos);
+end
+
+% initialize the evaders
+for i=1:n_e
+    pos = rand(1,2);
+    pos(1,1) = pos(1,1) * (xbound(2) - xbound(1)) + xbound(1);
+    pos(1,2) = pos(1,2) * (ybound(2) - ybound(1)) + ybound(1);
+    evaders{i} = Evader(pos);
+end
+
+% get all agents' position, both evaders and pursuers
+pos_evaders = zeros(n_e,2);
+pos_pursuers = zeros(n_p,2);
+
+for i = 1:length(evaders)
+    
+    pos_evaders(i,:) = evaders{i}.position;
+end
+
+for i = 1:length(pursuers)
+    pos_pursuers(i,:) = pursuers{i}.position;
+end
+
+figure;
+scatter(pos_evaders(:,1),pos_evaders(:,2), "Color",'k', "Marker", "s");
+hold on;
+scatter(pos_pursuers(:,1), pos_pursuers(:,2), "Color", "r", "Marker", 'O');
+
+% get voronoi diagram by using function voronoin
+[v, c] = voronoin([pos_pursuers;pos_evaders]);
+% exclude unlimited regions by checking fi i is included
+for i = 1:length(c)
+    regionIdx = c{i};
+    if all(regionIdx ~= 1) % 
+        x = v(regionIdx, 1);
+        
+end
+
