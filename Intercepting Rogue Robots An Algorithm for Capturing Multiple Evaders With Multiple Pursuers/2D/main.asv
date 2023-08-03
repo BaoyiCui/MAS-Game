@@ -47,6 +47,9 @@ scatter2 = scatter(pos_pursuers(:,1), pos_pursuers(:,2), 'O', 'filled', "Color",
 for t=0:timestep:timeend
     % 1. calculate Voronoi tesselation with all agents
     for i = 1:length(evaders)
+        if evaders{i}.isDead
+            continue;
+        end
         pos_evaders(i,:) = evaders{i}.position;
     end
 
@@ -57,13 +60,27 @@ for t=0:timestep:timeend
     pos_all = [[pos_evaders; pos_pursuers], [zeros(n_e,1); ones(n_p, 1)]]; % 第三列为1为pursuer，否则为evader
     [v,p] = mpt_voronoi(pos_all(:, 1:2)', 'bound', bound);  % 取出所有agents的位置用于计算voronoi图
 
-    for i = 1:length(p)
-        if i <= n_e
-            evaders{i} = evaders{i}.setVoronoiCell(p(i));
+    count = 1;
+    for i = 1:length(evaders)
+        if evaders{i}.isDead
+            continue;
         else
-            pursuers{i-n_e} = pursuers{i-n_e}.setVoronoiCell(p(i));
+            evaders{i} = evaders{i}.setVoronoiCell(p(count));
+            count  = count + 1;
         end
     end
+    for i = 1:length(pursuers)
+        pursuers{i} = pursuers{i}.setVoronoiCell(p(count));
+        count = count + 1;
+    end
+
+%     for i = 1:length(p)
+%         if i <= n_e
+%             evaders{i} = evaders{i}.setVoronoiCell(p(i));
+%         else
+%             pursuers{i-n_e} = pursuers{i-n_e}.setVoronoiCell(p(i));
+%         end
+%     end
 
     adjacencyMatrix = getVoronoiAdjacency(p);
     
@@ -71,15 +88,19 @@ for t=0:timestep:timeend
         % find the nearest evader
         dists = pdist2(pursuers{i}.position, pos_evaders);
         [~, nearestEvaderIdx] = min(dists);
-        pursuers{i}.target = evaders{nearestEvaderIdx};
+        
         % 2. determine nearest evader from Voronoi neighbors
+        count = 0;
+        for j = 1:length()
+%         pursuers{i}.target = evaders{nearestEvaderIdx};
         if adjacencyMatrix(i + n_e, nearestEvaderIdx)
-            pursuer{i}.targetIs
+            pursuers{i}.targetIsAdjacent = true;
+        else
+            pursuers{i}.targetIsAdjacent = false;
         end
-
-        % 3. compute u_p^j
-
-        % 4. if no neighbor evader exists, move directly towards nearest evader
+        
+        % 更新pursuers{i}的速度
+        pursuers{i} = pursuers{i}.calculateVelocity();
         
     end
 

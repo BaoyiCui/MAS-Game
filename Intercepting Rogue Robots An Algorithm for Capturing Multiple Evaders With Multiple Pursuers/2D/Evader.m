@@ -4,7 +4,7 @@ classdef Evader < Robot
     
     properties
         isDead = false;
-        r_capture = 0.2;    % 抓捕距离，当该半径内存在pursuer则evader死亡
+        r_capture = 0.5;    % 抓捕距离，当该半径内存在pursuer则evader死亡
     end
     
     methods
@@ -12,7 +12,11 @@ classdef Evader < Robot
             % 计算所在cell的质心
             vertices = obj.voronoi_cell.V;
             centroidOfCell = mean(vertices, 1);
-            obj.velocity = (centroidOfCell - obj.position)/norm(centroidOfCell - obj.position);
+            if obj.isDead
+                obj.velocity = [0,0];
+            else
+                obj.velocity = (centroidOfCell - obj.position)/norm(centroidOfCell - obj.position);
+            end
             
         end
 
