@@ -36,24 +36,30 @@ end
 
 
 bound = Polyhedron(bbox);   % 边界
-
 figure(1)
-
 % TODO: 主循环
+pos_pursuers = zeros(n_p, 2);
 for t=0:timestep:timeend
+    n_e_alive = 0;
+    evaders_alive_index = [];
     pos_evaders = [];
-    pos_pursuers = [];
     % 1. calculate Voronoi tesselation with all agents
     for i = 1:length(evaders)
         if evaders{i}.isDead
             continue;
         else
-            pos_evaders(i,:) = evaders{i}.position;
+            n_e_alive = n_e_alive + 1;
+            evaders_alive_index = [evaders_alive_index, i];
+            pos_evaders = [pos_evaders; evaders{i}.position];
         end
     end
 
     for i = 1:length(pursuers)
         pos_pursuers(i,:) = pursuers{i}.position;
+    end
+
+    if n_e_alive ==0
+        break;
     end
     
 
@@ -63,17 +69,12 @@ for t=0:timestep:timeend
     [v,p] = mpt_voronoi(pos_all', 'bound', bound);  % 取出所有agents的位置用于计算voronoi图
 
     count = 1;
-    for i = 1:length(evaders)
-        if evaders{i}.isDead
-            continue;
+    for i = 1:length(p)
+        if i <= n_e_alive
+            evaders{evaders_alive_index(i)} = evaders{evaders_alive_index(i)}.setVoronoiCell(p(i));
         else
-            evaders{i} = evaders{i}.setVoronoiCell(p(count));
-            count  = count + 1;
+            pursuers{i-n_e_alive} = pursuers{i-n_e_alive}.setVoronoiCell(p(i));
         end
-    end
-    for i = 1:length(pursuers)
-        pursuers{i} = pursuers{i}.setVoronoiCell(p(count));
-        count = count + 1;
     end
 
     adjacencyMatrix = getVoronoiAdjacency(p);
@@ -84,20 +85,23 @@ for t=0:timestep:timeend
         [~, nearestEvaderIdx] = min(dists);
         
         % 2. determine nearest evader from Voronoi neighbors
-        count = 0;
-        for j = 1:length(evaders)
-            if evaders{j}.isDead
-                continue;
-            else
-                count = count + 1;
-                if count == nearestEvaderIdx
-                    pursuers{i}.target = evaders{j};
-                    break;
-                end
-            end
+        for j = 1:n_e_alive
+            
         end
-%         pursuers{i}.target = evaders{nearestEvaderIdx};
-        if adjacencyMatrix(i + n_e, nearestEvaderIdx)
+%         count = 0;
+%         for j = 1:length(evaders)
+%             if evaders{j}.isDead
+%                 continue;
+%             else
+%                 count = count + 1;
+%                 if count == nearestEvaderIdx
+%                     pursuers{i}.target = evaders{j};
+%                     break;
+%                 end
+%             end
+%         end
+        pursuers{i}.target = evaders{evaders_alive_index(nearestEvaderIdx)};
+        if adjacencyMatrix(i + n_e_alive, nearestEvaderIdx)
             pursuers{i}.targetIsAdjacent = true;
         else
             pursuers{i}.targetIsAdjacent = false;
