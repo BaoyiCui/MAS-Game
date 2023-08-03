@@ -3,7 +3,7 @@ clc;
 close all;
 
 timestep = 0.1; % 仿真时间步长
-timeend = 100;
+timeend = 200;
 xbound = [-10,10];
 ybound = [-10,10];
 bbox = [xbound(1), ybound(1);xbound(2), ybound(1);xbound(2), ybound(2);xbound(1), ybound(2)];
@@ -13,7 +13,7 @@ ylim(ybound);
 
 
 n_p = 4; % number of pursuers
-n_e = 8; % number of evaders
+n_e = 10; % number of evaders
 
 pursuers = cell(1, n_p);
 evaders = cell(1, n_e);
