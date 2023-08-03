@@ -130,6 +130,7 @@ for t=0:timestep:timeend
     plot(p, "wire", true);
     scatter(pos_evaders(:,1), pos_evaders(:,2), 'd', 'filled', "Color", 'r');
     scatter(pos_pursuers(:,1), pos_pursuers(:,2), 'O', 'filled', "Color", "k");
+    title(t)
     hold off;
     drawnow;
 end

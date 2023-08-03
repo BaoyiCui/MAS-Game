@@ -121,9 +121,9 @@ for t=0:timestep:timeend
     hold on
     plot(p, "wire", true);
     for i = 1:length(p)
-        if i<n_e_alive
+        if i<= n_e_alive
             f1 = plot(p(i), "color", 'b', "wire", true);
-            alpha(f1, 0.5);
+            alpha(f1, 0.2);
         else
             figure2 = plot(p(i), "wire", false);
             alpha(figure2, 0);
@@ -131,6 +131,7 @@ for t=0:timestep:timeend
     end
     scatter3(pos_evaders(:,1), pos_evaders(:,2), pos_evaders(:,3), 'd', 'filled', "Color", 'r');
     scatter3(pos_pursuers(:,1), pos_pursuers(:,2), pos_pursuers(:,3), 'O', 'filled', "Color", "k");
+    title(t);
     hold off;
     drawnow;
 end
