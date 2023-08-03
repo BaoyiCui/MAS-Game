@@ -5,6 +5,8 @@ classdef Robot
     properties
         position
         velocity
+        voronoi_cell
+        bound    % 机器人运动的边界
     end
     
     methods
@@ -22,6 +24,11 @@ classdef Robot
         function obj = move(obj, timestep)
             % 机器人移动
             obj.position = obj.position + obj.velocity * timestep;
+        end
+
+        function obj = setVoronoiCell(obj, p)
+            % p是Polyhedron类型的多边形，表示robot所在的cell
+            obj.voronoi_cell = p;
         end
         
     end
