@@ -4,41 +4,32 @@ close all;
 
 timestep = 0.1; % 仿真时间步长
 timeend = 200;
-xbound = [-10,10];
-ybound = [-10,10];
-bbox = [xbound(1), ybound(1);xbound(2), ybound(1);xbound(2), ybound(2);xbound(1), ybound(2)];
-
-xlim(xbound);
-ylim(ybound);
-
+ubound = [10, 10, 10];
+lbound = [-10, -10, -10];
 
 n_p = 4; % number of pursuers
-n_e = 10; % number of evaders
+n_e = 2; % number of evaders
 
 pursuers = cell(1, n_p);
 evaders = cell(1, n_e);
 
 % initialize the pursuers
 for i=1:n_p
-    pos = rand(1,2);
-    pos(1,1) = pos(1,1) * (xbound(2) - xbound(1)) + xbound(1);
-    pos(1,2) = pos(1,2) * (ybound(2) - ybound(1)) + ybound(1);
+    pos = rand(1,3) .* (ubound - lbound) + lbound;
     pursuers{i} = Pursuer(pos);
 end
 
 % initialize the evaders
 for i=1:n_e
-    pos = rand(1,2);
-    pos(1,1) = pos(1,1) * (xbound(2) - xbound(1)) + xbound(1);
-    pos(1,2) = pos(1,2) * (ybound(2) - ybound(1)) + ybound(1);
+    pos = rand(1,3) .* (ubound - lbound) + lbound;
     evaders{i} = Evader(pos);
 end
 
+bound = Polyhedron('ub', ubound, 'lb', lbound);   % 边界
 
-bound = Polyhedron(bbox);   % 边界
 figure(1)
 % TODO: 主循环
-pos_pursuers = zeros(n_p, 2);
+pos_pursuers = zeros(n_p, 3);
 for t=0:timestep:timeend
     n_e_alive = 0;
     evaders_alive_index = [];
@@ -64,6 +55,7 @@ for t=0:timestep:timeend
     
 
     % get voronoi diagram by using function voronoi()
+%     pos_all = [[pos_evaders; pos_pursuers], [zeros(n_e,1); ones(n_p, 1)]]; % 第三列为1为pursuer，否则为evader
     pos_all = [pos_evaders; pos_pursuers];
     [v,p] = mpt_voronoi(pos_all', 'bound', bound);  % 取出所有agents的位置用于计算voronoi图
 
@@ -128,8 +120,17 @@ for t=0:timestep:timeend
     clf;
     hold on
     plot(p, "wire", true);
-    scatter(pos_evaders(:,1), pos_evaders(:,2), 'd', 'filled', "Color", 'r');
-    scatter(pos_pursuers(:,1), pos_pursuers(:,2), 'O', 'filled', "Color", "k");
+    for i = 1:length(p)
+        if i<n_e_alive
+            f1 = plot(p(i), "color", 'b', "wire", true);
+            alpha(f1, 0.5);
+        else
+            figure2 = plot(p(i), "wire", false);
+            alpha(figure2, 0);
+        end
+    end
+    scatter3(pos_evaders(:,1), pos_evaders(:,2), pos_evaders(:,3), 'd', 'filled', "Color", 'r');
+    scatter3(pos_pursuers(:,1), pos_pursuers(:,2), pos_pursuers(:,3), 'O', 'filled', "Color", "k");
     hold off;
     drawnow;
 end
