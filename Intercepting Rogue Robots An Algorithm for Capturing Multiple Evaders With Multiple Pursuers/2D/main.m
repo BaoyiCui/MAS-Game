@@ -40,8 +40,8 @@ figure(1)
 % TODO: 主循环
 pos_pursuers = zeros(n_p, 2);
 for t=0:timestep:timeend
-    n_e_alive = 0;
-    evaders_alive_index = [];
+    n_e_alive = 0;      % 记录当前存活的evaders数量
+    evaders_alive_index = [];   % 记录存活的evader在evaders中的索引
     pos_evaders = [];
     % 1. calculate Voronoi tesselation with all agents
     for i = 1:length(evaders)
@@ -50,7 +50,7 @@ for t=0:timestep:timeend
         else
             n_e_alive = n_e_alive + 1;
             evaders_alive_index = [evaders_alive_index, i];
-            pos_evaders = [pos_evaders; evaders{i}.position];
+            pos_evaders = [pos_evaders; evaders{i}.position];   % 存活的evaders位置加入pos_evaders
         end
     end
 

@@ -8,6 +8,11 @@ classdef Evader < Robot
     end
     
     methods
+        function obj = Evader(pos)
+            % 构造函数
+            obj = obj@Robot(pos);
+        end
+
         function obj = calculateVelocity(obj)
             % 计算所在cell的质心
             vertices = obj.voronoi_cell.V;
@@ -17,16 +22,17 @@ classdef Evader < Robot
             else
                 obj.velocity = (centroidOfCell - obj.position)/norm(centroidOfCell - obj.position);
             end
-            
         end
 
         function obj = checkIfAlive(obj, pursuers)
+            % 检查r_capture范围内是否存在pursuer
             pos_pursuers = zeros(length(pursuers), size(obj.position, 2));
             for i = 1:length(pursuers)
                 pos_pursuers(i, :) = pursuers{i}.position;
             end
+            % 计算该evader到所有pursuers的距离
             dists = pdist2(obj.position, pos_pursuers);
-            if min(dists) < obj.r_capture
+            if min(dists) < obj.r_capture    % 如果距离最小值小于r_capture则死亡(相当于"存在")
                 obj.isDead = true;
             end
         end

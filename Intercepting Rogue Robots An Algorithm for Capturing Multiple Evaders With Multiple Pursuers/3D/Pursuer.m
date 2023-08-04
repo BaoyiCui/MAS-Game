@@ -1,7 +1,5 @@
 classdef Pursuer < Robot
-    %PURSUER 此处显示有关此类的摘要
-    %   此处显示详细说明
-    
+
     properties
         target % 追踪的目标
         targetIsAdjacent    % 目标所在cell与pursuer所在cell是否邻接
@@ -9,6 +7,7 @@ classdef Pursuer < Robot
     
     methods
         function obj = Pursuer(pos)
+            % 构造函数
             obj = obj@Robot(pos);
         end
         
