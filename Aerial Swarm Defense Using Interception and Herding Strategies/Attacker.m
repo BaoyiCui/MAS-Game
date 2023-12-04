@@ -4,6 +4,7 @@ classdef Attacker < Agent
     
     properties
         isIntercepted;
+        isClustered;
     end
     
     methods
@@ -14,9 +15,8 @@ classdef Attacker < Agent
             %   pos: initial position, (2*1)
             obj = obj@Agent(pos_init, d_coef, control_bound);
             obj.isIntercepted = false;
+            obj.isClustered = false;
         end
-        
-        
         
     end
 end

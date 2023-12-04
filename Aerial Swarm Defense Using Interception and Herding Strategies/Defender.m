@@ -15,11 +15,8 @@ classdef Defender < Agent
             %   pos: initial position, (2*1)
             obj = obj@Agent(pos_init, d_coef, control_bound);
             obj.isIntercepting = false;
-            obj.isHerding = True;
+            obj.isHerding = true;
         end
-        
-        
-
     end
 end
 
