@@ -1,23 +1,23 @@
-classdef Attacker
+classdef Attacker < Agent
     %ATTACKER 此处显示有关此类的摘要
     %   此处显示详细说明
     
     properties
-        Property1
+        isIntercepted;
     end
     
     methods
-        function obj = Attacker(inputArg1,inputArg2)
-            %ATTACKER 构造此类的实例
-            %   此处显示详细说明
-            obj.Property1 = inputArg1 + inputArg2;
+        function obj = Attacker(pos_init, d_coef, control_bound)
+            %ATTACKER 
+            %   d_coef: positive, known, constant drag coefficient
+            %   control_bound: positive, acceleration bound
+            %   pos: initial position, (2*1)
+            obj = obj@Agent(pos_init, d_coef, control_bound);
+            obj.isIntercepted = false;
         end
         
-        function outputArg = method1(obj,inputArg)
-            %METHOD1 此处显示有关此方法的摘要
-            %   此处显示详细说明
-            outputArg = obj.Property1 + inputArg;
-        end
+        
+        
     end
 end
 
