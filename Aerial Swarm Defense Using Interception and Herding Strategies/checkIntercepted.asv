@@ -1,0 +1,4 @@
+function interceptedIdx = checkIntercepted(Attackers,Defenders)
+    
+end
+

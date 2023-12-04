@@ -102,7 +102,7 @@ while (t <= t_end)
     % TODO: Gathering Formations for the defenders
     % CoMs = zeros(2, num_c);
     for i = 1:num_c
-        a_c_i = attackers(group_tags==group_tags_c(i));
+        a_c_i = attackers(group_tags==i);
         % CoMs(:, i) = getCoM(a_c_i);
         CoM = getCoM(a_c_i);
         [Gamma, P_aci, Theta_aci] = timeOptimalTraj(CoM, 100);
