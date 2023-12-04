@@ -18,7 +18,7 @@ function [Gamma, P, Theta] = timeOptimalTraj(startPoint, numPoints)
     % 每个Theta都是从startPoint到target连线与X轴正向的夹角
     dx = target(1) - startPoint(1);
     dy = target(2) - startPoint(2);
-    Theta = atan2(dy, dx);  % atan2的返回值在[-pi,pi]
+    Theta = atan2(dy, dx); % atan2的返回值在[-pi,pi]
 
     if Theta < 0
         Theta = Theta + 2 * pi; % 使 Theta 在 [0, 2*pi] 闭区间内

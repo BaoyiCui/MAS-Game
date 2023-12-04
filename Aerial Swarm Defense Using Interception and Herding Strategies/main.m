@@ -59,7 +59,7 @@ for i = 1:N_a
 end
 
 % initialize the defenders
-pos_init_d = randomPointsInCircle(1000, N_d);
+pos_init_d = randomPointsInCircle(100, N_d);
 
 for i = 1:N_d
     defenders{i}.position = pos_init_d(:, i);
@@ -83,6 +83,13 @@ end
 figure;
 while (t <= t_end)
     t = t + ts;
+    %% check if attacker is intercepted
+    int_flag = checkIntercepted(attackers, defenders, rho_d_int);
+    for i = 1:N_a
+        if int_flag(i)
+            attackers{i}.isIntercepted = true;
+        end
+    end
     idx = DBSCAN(attackers, R_sb, N_a, N_d, 3);
     %% plot
     clf;

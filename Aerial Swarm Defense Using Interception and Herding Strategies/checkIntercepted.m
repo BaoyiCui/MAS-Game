@@ -1,6 +1,6 @@
 function interceptedFlag = checkIntercepted(attackers, defenders, rho_int)
     %CHECKINTERCEPTED 判断哪些attacker被拦截
-    %inputs: 
+    %inputs:
     %   attackers: 所有攻击者
     %   defenders: 所有防御者
     %   rho_int: 拦截半径
@@ -18,9 +18,9 @@ function interceptedFlag = checkIntercepted(attackers, defenders, rho_int)
     end
 
     dist = pdist2(pos_a', pos_d');
-    
+
     distLeqInt = (dist < rho_int);
 
-    interceptedFlag = sum(distLeqInt, 2);    % 进入一个defender的rho_int就判断为被拦截
-    interceptedFlag = (interceptedFlag ~= 0); 
+    interceptedFlag = sum(distLeqInt, 2); % 进入一个defender的rho_int就判断为被拦截
+    interceptedFlag = (interceptedFlag ~= 0);
 end
