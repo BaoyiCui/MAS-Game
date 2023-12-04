@@ -12,7 +12,7 @@ rho_p = 45; % radius of the protected area
 rho_d_int = 5; % intercepting radius, if the distance between attacker and defender <= this value, then they are seen as damaged
 rho_d = 2500; % defenders' percepting region
 rho_d_game = 2000; % defenders' playing region
-rho_a_game = 2700; % attacker's initial position region
+rho_a_game = 2300; % attacker's initial position region
 radius_a = 0.5; % attacker's geometric radius
 radius_d = 0.5; % defender's geometric radius
 radius_c = 1.5; % clustered group's radius
@@ -42,7 +42,7 @@ group_tags_uc = (num_c + 1):(num_c + num_uc); % unclustered attackers的组标�
 group_tags = [group_tags_c, group_tags_uc];
 
 % 生成每个clustered 和unclustered group的中心坐标
-pos_group_init_a = randomPointsInRing(rho_d, rho_a_game, num_c + num_uc);
+pos_group_init_a = randomPointsInRing(rho_a_game, rho_d, num_c + num_uc);
 
 for i = 1:N_a
     group_tag = group_tags(i);
@@ -59,7 +59,7 @@ for i = 1:N_a
 end
 
 % initialize the defenders
-pos_init_d = randomPointsInCircle(rho_d_game, N_d);
+pos_init_d = randomPointsInCircle(1000, N_d);
 
 for i = 1:N_d
     defenders{i}.position = pos_init_d(:, i);
@@ -80,25 +80,41 @@ for i = 1:N_d
     pos_d(:, i) = defenders{i}.position;
 end
 
-
-%% plot
 figure;
-
-
 while (t <= t_end)
     t = t + ts;
     idx = DBSCAN(attackers, R_sb, N_a, N_d, 3);
-
     %% plot
     clf;
     color_array = strings(N_a);
     color_array(:) = 'r';
-    visrings([0; 0], rho_d_game, rho_d, 'b', 0.5);
+    visrings([0; 0], rho_d_game, rho_d, 'g', 0.2);
+    visrings([0; 0], 0, rho_p, 'b', 0.2);
     hold on
-    scatter(pos_a(1, :), pos_a(2, :), 'filled');
+    s1 = scatter(pos_a(1, :), pos_a(2, :), 'filled');
+    s1.MarkerFaceColor = "r";
+    s2 = scatter(pos_d(1, :), pos_d(2, :), "filled");
+    s2.MarkerFaceColor = 'b';
+    s2.Marker = "diamond";
     gscatter(pos_a(1, :)', pos_a(2, :)', idx);
     hold off
+    
+    % TODO: Gathering Formations for the defenders
+    % CoMs = zeros(2, num_c);
+    for i = 1:num_c
+        a_c_i = attackers(group_tags==group_tags_c(i));
+        % CoMs(:, i) = getCoM(a_c_i);
+        CoM = getCoM(a_c_i);
+        [Gamma, P_aci, Theta_aci] = timeOptimalTraj(CoM, 100);
+        hold on 
+        plot(P_aci(:, 1), P_aci(:, 2));
+        hold off
+    end
     drawnow;
+
+    % TODO: Defender-to-Attacker-Swarm Assignment (DASA)
+
+
     % update attackers' position and defenders' position
     for i = 1:N_a
         u = ([0; 0] - attackers{i}.position) / norm([0; 0] - attackers{i}.position) * u_a_bound;
@@ -110,5 +126,5 @@ while (t <= t_end)
     for i = 1:N_d
         pos_d(:, i) = defenders{i}.position;
     end
-
+    
 end
