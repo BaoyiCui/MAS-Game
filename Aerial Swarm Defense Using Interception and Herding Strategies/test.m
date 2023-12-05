@@ -1,72 +1,134 @@
-%% DBSCAN example
-% clear;
-% clc;
-% close all;
-% % 首先，生成一些随机数据
-% rng default; % 用于可重复性
-% n = 500;
-% X = [randn(n, 2) * 1.0 + ones(n, 2); randn(n, 2) * 2.0 - ones(n, 2)] * 2;
+% Given values for circle and line
+% circle_center = [0, 0];
+circle_center = [-3990.48038466324
+-2515.27887744041]';
+radius = 3.213951616591904e+03;
+line_point1 = [0,0];
+line_point2 = [-2.044400468137731e+03;-1.214149932670039e+03]';
 
-% % 使用DBSCAN进行聚类
-% eps = 0.5;
-% MinPts = 3;
-% idx = dbscan(X, eps, MinPts);
+% Calculate intersection points
+intersect_points = CircleLineIntersection(circle_center, radius, line_point1, line_point2);
 
-% % 可视化结果
-% figure;
-% gscatter(X(:, 1), X(:, 2), idx);
-% title('DBSCAN Clustering');
+% Start figure to plot
+figure;
 
-%% 拦截点计算测试
-% % 测试数据
-% F1 = [1, 3];  % 第一个焦点
-% F2 = [-2, -2];  % 第二个焦点
-% k = 0.5;  % 距离比率
+% Plot circle
+viscircles(circle_center, radius, 'Color', 'b');
 
-% % 计算圆心和半径
-% [center, radius] = computeApolloniusCircle(F1, F2, k);
+% Hold on to plot additional graphics on top
+hold on;
 
-% % 绘制阿波罗尼斯圆
-% theta = 0:0.01:2*pi;  % 角度从 0 到 2*pi
-% x = center(1) + radius*cos(theta);
-% y = center(2) + radius*sin(theta);
+% Plot line segment
+line([line_point1(1), line_point2(1)], [line_point1(2), line_point2(2)], 'Color', 'r');
 
-% % 绘制圆和焦点
-% figure;
-% plot(x, y, 'b-', 'LineWidth', 2);  % 绘制圆
-% hold on;
-% plot(F1(1), F1(2), 'g*');  % 第一个焦点
-% plot(F2(1), F2(2), 'r*');  % 第二个焦点
-% plot(center(1), center(2), 'bo');  % 圆心
+% Plot the intersection points if they exist
+if ~isempty(intersect_points)
+    plot(intersect_points(:, 1), intersect_points(:, 2), 'ko', 'MarkerFaceColor', 'g');
+end
 
-% % 设定图形属性
-% axis equal;
-% grid on;
-% xlabel('x');
-% ylabel('y');
-% title('Apollonius Circle');
-% xlim([min(x)-1, max(x)+1]);  % 设置 x 轴的限制
-% ylim([min(y)-1, max(y)+1]);  % 设置 y 轴的限制
+% Set the axes limits
+xlim([min([line_point1(1), line_point2(1)])-radius, max([line_point1(1), line_point2(1)])+radius]);
+ylim([min([line_point1(2), line_point2(2)])-radius, max([line_point1(2), line_point2(2)])+radius]);
 
-% % 显示图例
-% hold off;
+% Add grid for better readability
+grid on;
 
-% function [center, radius] = computeApolloniusCircle(pointA, pointB, k)
-%     % 保证 k 不等于 1
-%     if k == 1
-%         error('k must not be equal to 1');
-%     end
-    
-%     % 计算 A 和 B 之间的距离
-%     d = norm(pointA - pointB);
-    
-%     % 计算中心点 C
-%     center = (1/(1 - k)) * pointA - (k/(1 - k)) * pointB;
-    
-%     % 计算半径
-%     if k < 1
-%         radius = d / (1 - k^2);
-%     else
-%         radius = k * d / (k^2 - 1);
-%     end
-% end
+% Keep the axis equal to avoid distortion
+axis equal;
+
+% Add title and labels
+title('Circle-Line Intersection');
+xlabel('x-axis');
+ylabel('y-axis');
+
+% Release the hold on the current figure
+hold off;
+
+
+function points = CircleLineIntersection(circle_center, radius, line_point1, line_point2)
+    % Extract circle information
+    h = circle_center(1);
+    k = circle_center(2);
+    r = radius;
+
+    % Extract line information
+    x1 = line_point1(1);
+    y1 = line_point1(2);
+    x2 = line_point2(1);
+    y2 = line_point2(2);
+
+    % Line's slope (m) and y-intercept (b) calculation
+    if x2 ~= x1
+        m = (y2 - y1) / (x2 - x1);
+        b = y1 - m * x1;
+
+        % Quadratic equation coefficients
+        A = 1 + m ^ 2;
+        B = 2 * (m * b - m * k - h);
+        C = h ^ 2 + k ^ 2 + b ^ 2 - 2 * b * k - r ^ 2;
+
+        % Solve quadratic equation for x
+        discriminant = B ^ 2 - 4 * A * C;
+
+        if discriminant >= 0
+            sqrt_discriminant = sqrt(discriminant);
+            x_intersect1 = (-B + sqrt_discriminant) / (2 * A);
+            x_intersect2 = (-B - sqrt_discriminant) / (2 * A);
+
+            % Calculate corresponding y values
+            y_intersect1 = m * x_intersect1 + b;
+            y_intersect2 = m * x_intersect2 + b;
+        else
+            points = []; % No intersection, return empty array
+            return;
+        end
+
+    else
+        % If the line is vertical, use the circle equation directly
+        x_intersect1 = x1; % or x2 (since x1 == x2 for a vertical line)
+        x_intersect2 = x_intersect1;
+        A = 1;
+        B = -2 * k;
+        C = k ^ 2 - r ^ 2 + (x1 - h) ^ 2;
+
+        discriminant = B ^ 2 - 4 * A * C;
+
+        if discriminant >= 0
+            sqrt_discriminant = sqrt(discriminant);
+            y_intersect1 = (-B + sqrt_discriminant) / (2 * A);
+            y_intersect2 = (-B - sqrt_discriminant) / (2 * A);
+        else
+            points = []; % No intersection, return empty array
+            return;
+        end
+
+    end
+
+    % Check if intersection points are within the line segment
+    points = [];
+
+    if IsBetween(x1, y1, x2, y2, x_intersect1, y_intersect1)
+        points = [points; x_intersect1, y_intersect1];
+    end
+
+    if IsBetween(x1, y1, x2, y2, x_intersect2, y_intersect2)
+        points = [points; x_intersect2, y_intersect2];
+    end
+
+    %     points = points';
+
+end
+
+function isBetween = IsBetween(ax, ay, bx, by, cx, cy)
+    % Check if point C is on line segment AB
+    crossproduct = (cy - ay) * (bx - ax) - (cx - ax) * (by - ay);
+
+    if abs(crossproduct) > 1 % (consider floating-point tolerance)
+        isBetween = false;
+        return;
+    end
+
+    % Check if the point is within the bounding rectangle
+    isBetween = (cx <= max(ax, bx)) && (cx >= min(ax, bx)) && ...
+        (cy <= max(ay, by)) && (cy >= min(ay, by));
+end

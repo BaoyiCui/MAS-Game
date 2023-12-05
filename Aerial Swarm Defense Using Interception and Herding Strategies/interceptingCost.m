@@ -134,7 +134,7 @@ function isBetween = IsBetween(ax, ay, bx, by, cx, cy)
     % Check if point C is on line segment AB
     crossproduct = (cy - ay) * (bx - ax) - (cx - ax) * (by - ay);
 
-    if abs(crossproduct) > eps % (consider floating-point tolerance)
+    if abs(crossproduct) > 1.0 % (consider floating-point tolerance)
         isBetween = false;
         return;
     end
