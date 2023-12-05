@@ -21,6 +21,8 @@ N_a = 20; % attackers' number
 N_d = 20; % defenders' number
 num_c = 3; % number of clusters
 num_uc = 3; % number of unclustered attackers
+v_a_avr = u_a_bound / drag_coef;
+v_d_avr = u_d_bound / drag_coef;
 
 %% initialize the agents
 attackers = cell(1, N_a);
@@ -80,16 +82,20 @@ for i = 1:N_d
     pos_d(:, i) = defenders{i}.position;
 end
 
-figure;
+f1 = figure;
+
 while (t <= t_end)
-    t = t + ts;
     %% check if attacker is intercepted
     int_flag = checkIntercepted(attackers, defenders, rho_d_int);
+
     for i = 1:N_a
+
         if int_flag(i)
             attackers{i}.isIntercepted = true;
         end
+
     end
+
     idx = DBSCAN(attackers, R_sb, N_a, N_d, 3);
     %% plot
     clf;
@@ -105,22 +111,31 @@ while (t <= t_end)
     s2.Marker = "diamond";
     gscatter(pos_a(1, :)', pos_a(2, :)', idx);
     hold off
-    
-    % TODO: Gathering Formations for the defenders
+    %% TODO: 1. use CADAA to assign defenders to intercept the unclustered attackers
+    [costMatCol, costMatTime] = interceptingCost(attackers, defenders);
+    %% TODO: Gathering Formations for the defenders
     % CoMs = zeros(2, num_c);
+    Gammas = zeros(1, num_c);
+    P_ac = cell(num_c);
+    Theta_ac = cell(num_c);
+
     for i = 1:num_c
-        a_c_i = attackers(group_tags==i);
+        a_c_i = attackers(group_tags == i);
         % CoMs(:, i) = getCoM(a_c_i);
         CoM = getCoM(a_c_i);
-        [Gamma, P_aci, Theta_aci] = timeOptimalTraj(CoM, 100);
-        hold on 
-        plot(P_aci(:, 1), P_aci(:, 2));
+        [Gammas(i), P_ac{i}, Theta_ac{i}] = timeOptimalTraj(CoM, 100);
+        hold on
+        plot(P_ac{i}(:, 1), P_ac{i}(:, 2));
         hold off
     end
-    drawnow;
+
+    Sigma = 0;
+    gamma
+    if t == 0
+
+    end
 
     % TODO: Defender-to-Attacker-Swarm Assignment (DASA)
-
 
     % update attackers' position and defenders' position
     for i = 1:N_a
@@ -133,5 +148,8 @@ while (t <= t_end)
     for i = 1:N_d
         pos_d(:, i) = defenders{i}.position;
     end
-    
+
+    axis equal;
+    drawnow;
+    t = t + ts;
 end

@@ -10,7 +10,7 @@ function [Gamma, P, Theta] = timeOptimalTraj(startPoint, numPoints)
     target = [0; 0]; % 原点是目标点
     % waypoints = [startPoint, target];
     % 路径长度
-    Gamma = pdist2(startPoint, target);
+    Gamma = pdist2(startPoint', target');
     % 直线段路径
     xi = linspace(startPoint(1), target(1), numPoints);
     yi = linspace(startPoint(2), target(2), numPoints);

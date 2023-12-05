@@ -8,6 +8,7 @@ classdef Agent
         control_input;
         control_bound;
         drag_coef;
+        vel_max;
     end
     
     methods
@@ -21,6 +22,7 @@ classdef Agent
             obj.drag_coef = d_coef;
             obj.control_bound = control_bound;
             obj.control_input = zeros(2,1);
+            obj.vel_max = control_bound / d_coef;
         end
         
         function obj = updateControlInput(obj, u)
