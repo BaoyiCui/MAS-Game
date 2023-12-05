@@ -1,25 +1,31 @@
-function [costMatCol, costMatTime] = interceptingCost(attackers, defenders)
+function [costMatCol, costMatTime, interceptPoints] = interceptingCost(attackers, defenders)
     N_a = length(attackers);
     N_d = length(defenders);
 
     costMatCol = zeros(N_d, N_d);
-    costMatTime = zeros(N_d, N_a);
-    v_d_avr = defenders{1}.vel_max;
-    v_a_avr = attackers{1}.vel_max;
+    costMatTime = zeros(N_a, N_d);
+    v_d_avr = defenders{1}.vel_max; % 以agent的最大速度近似平均速度，因为attacker的时间最优轨迹一定不考虑避障，必然是加速到最大速度然后匀速
+    v_a_avr = attackers{1}.vel_max; % 但是defender可能会考虑避障，因此此处只是近似
+    interceptPoints = cell(N_a, N_d);
 
-    for i = 1:N_d
+    for j = 1:N_a
 
-        for j = 1:N_a
+        for i = 1:N_d
+            % 近似计算拦截点
+            % 近似拦截点位于以初始attacker位置和defender位置为定点的阿波罗尼斯圆上
             [center, radius] = computeApolloniusCircle(attackers{j}.position, defenders{i}.position, v_a_avr / v_d_avr);
             interceptPoint = CircleLineIntersection(center', radius, attackers{j}.position', [0, 0]);
-            %             hold on
-            %             viscircles(center', radius);
-            %             plot([attackers{j}.position(1),0],[attackers{j}.position(2),0], "LineWidth", 3);
+            hold on
+            viscircles(center', radius);
+            plot([attackers{j}.position(1), 0], [attackers{j}.position(2), 0], "LineWidth", 3);
+
             if isempty(interceptPoint)
-                costMatTime(i, j) = 100000;
+                costMatTime(j, i) = 100000; % 如果没有交点说明无法在attacker到达protected area前进行拦截，设置足够大的代价
             else
-                costMatTime(i, j) = norm(interceptPoint' - defenders{i}.position) / v_d_avr;
+                costMatTime(j, i) = norm(interceptPoint' - defenders{i}.position) / v_d_avr; % 有交点则用预估时间作为代价
             end
+
+            interceptPoints{j, i} = interceptPoint';
 
         end
 
@@ -28,22 +34,6 @@ function [costMatCol, costMatTime] = interceptingCost(attackers, defenders)
 end
 
 %% 计算阿波罗尼斯圆
-% function [center, radius] = computeApolloniusCircle(F1, F2, k)
-%     % \frac{|PF1|}{|PF2|} = k
-%     % 计算两个焦点间的距离
-%     d = norm(F2 - F1);
-
-%     % 检查 k 是否为 1，因为 k=1 时没有唯一的阿波罗尼斯圆
-%     if k == 1
-%         error('The value of k should not be 1.');
-%     end
-
-%     % 计算圆心
-%     center = (1 / (1 + k)) * F1 + (k / (1 + k)) * F2;
-
-%     % 计算半径
-%     radius = (k * d) / abs(k ^ 2 - 1);
-% end
 function [center, radius] = computeApolloniusCircle(pointA, pointB, k)
     % 保证 k 不等于 1
     if k == 1
@@ -107,6 +97,7 @@ function points = CircleLineIntersection(circle_center, radius, line_point1, lin
     else
         % If the line is vertical, use the circle equation directly
         x_intersect1 = x1; % or x2 (since x1 == x2 for a vertical line)
+        x_intersect2 = x1;
         A = 1;
         B = -2 * k;
         C = k ^ 2 - r ^ 2 + (x1 - h) ^ 2;
