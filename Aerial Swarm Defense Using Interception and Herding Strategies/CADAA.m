@@ -2,13 +2,13 @@ function [solutionMatrix, fval] = CADAA(costMatCol, costMatTime, weight)
     %CADAA 将defender分配到unclustered attacker
     %input:
     %   costMatCol: 碰撞代价矩阵 m * m
-    %   costMatTime: 拦截时间代价矩阵 n * m
+    %   costMatTime: 拦截时间代价矩阵 m*n
     %   weight: 拦截时间代价的权重
     %output:
     %   solutionMatrix: 分配矩阵
     %   fval: 最小总代价
 
-    [n, m] = size(costMatTime); % n任务(unclustered attackers), m执行者(defenders)
+    [m, n] = size(costMatTime); % m任务(unclustered attackers), n执行者(defenders)
 
     % 目标函数
     f1 = (1 - weight) * costMatTime(:);
@@ -20,10 +20,10 @@ function [solutionMatrix, fval] = CADAA(costMatCol, costMatTime, weight)
     ub = ones(n * m, 1);
 
     %% 分配约束
-    % 每个任务只能分配给1个执行者
+    % 每个执行者只能执行一个任务
     Aeq_task = kron(eye(n), ones(1, m));
     beq_task = ones(n, 1);
-    % 每个执行者只能执行一个任务
+    % 每个任务只能分配给1个执行者
     Aeq_defender = kron(ones(1, n), eye(m));
     beq_defender = ones(m, 1);
     % 合并约束
@@ -34,7 +34,7 @@ function [solutionMatrix, fval] = CADAA(costMatCol, costMatTime, weight)
     intcon = 1:(n * m);
 
     % 求解整数线性规划
-    opts = optimoptions('intlinprog', 'Display', 'off');
+    opts = optimoptions('intlinprog', 'Display', 'iter');
     [x, fval, exitflag, output] = intlinprog(f1, intcon, [], [], Aeq, beq, lb, ub, opts);
 
     % 检查解的状态
