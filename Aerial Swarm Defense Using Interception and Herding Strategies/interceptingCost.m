@@ -15,9 +15,9 @@ function [costMatCol, costMatTime, interceptPoints] = interceptingCost(attackers
             % 近似拦截点位于以初始attacker位置和defender位置为定点的阿波罗尼斯圆上
             [center, radius] = computeApolloniusCircle(attackers{j}.position, defenders{i}.position, v_a_avr / v_d_avr);
             interceptPoint = CircleLineIntersection(center', radius, attackers{j}.position', [0, 0]);
-            hold on
-            viscircles(center', radius);
-            plot([attackers{j}.position(1), 0], [attackers{j}.position(2), 0], "LineWidth", 3);
+            % hold on
+            % viscircles(center', radius);
+            % plot([attackers{j}.position(1), 0], [attackers{j}.position(2), 0], "LineWidth", 3);
 
             if isempty(interceptPoint)
                 costMatTime(j, i) = 100000; % 如果没有交点说明无法在attacker到达protected area前进行拦截，设置足够大的代价

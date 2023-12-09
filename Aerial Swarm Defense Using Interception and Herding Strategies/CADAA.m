@@ -20,22 +20,26 @@ function [solutionMatrix, fval] = CADAA(costMatCol, costMatTime, weight)
     ub = ones(n * m, 1);
 
     %% 分配约束
-    % 每个执行者只能执行一个任务
-    Aeq_task = kron(eye(n), ones(1, m));
-    beq_task = ones(n, 1);
+    % 每个执行者只能执行小于等于一个任务
+    A_task = kron(eye(n), ones(1, m));
+    b_task = ones(n, 1);
     % 每个任务只能分配给1个执行者
     Aeq_defender = kron(ones(1, n), eye(m));
     beq_defender = ones(m, 1);
     % 合并约束
-    Aeq = [Aeq_task; Aeq_defender];
-    beq = [beq_task; beq_defender];
-
+    % 等式约束
+    Aeq = Aeq_defender;
+    beq = beq_defender;
+    % 不等式约束
+    A = A_task;
+    b = b_task;
+    
     % 整数约束
     intcon = 1:(n * m);
 
     % 求解整数线性规划
     opts = optimoptions('intlinprog', 'Display', 'iter');
-    [x, fval, exitflag, output] = intlinprog(f1, intcon, [], [], Aeq, beq, lb, ub, opts);
+    [x, fval, exitflag, output] = intlinprog(f1, intcon, A, b, Aeq, beq, lb, ub, opts);
 
     % 检查解的状态
     if exitflag ~= 1

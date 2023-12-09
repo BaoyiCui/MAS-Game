@@ -118,7 +118,7 @@ while (t <= t_end)
             CoM = getCoM(a_c_i);
             [Gammas(i), P_ac{i}, Theta_ac{i}] = timeOptimalTraj(CoM, 100);
             hold on
-            plot(P_ac{i}(:, 1), P_ac{i}(:, 2));
+            plot(P_ac{i}(:, 1), P_ac{i}(:, 2), "-b","HandleVisibility","off");
             hold off
         end
     
