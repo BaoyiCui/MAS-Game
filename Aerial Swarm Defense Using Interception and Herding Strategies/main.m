@@ -105,25 +105,38 @@ while (t <= t_end)
                 
         [costMatCol, costMatTime, interceptPoints] = interceptingCost(a_uc, defenders);
         [solutionMat, fval] = CADAA(costMatCol, costMatTime, 0);
+        % % 绘制分配结果
+        % for i = 1:size(solutionMat, 1)
+        %     for j = 1:size(solutionMat, 2)
+        %         hold on
+        %         if solutionMat(i,j) == 1
+        %             plot([defenders{j}.position(1), a_uc{i}.position(1)],[defenders{j}.position(2), a_uc{i}.position(2)], 'LineStyle','--', 'Color', [0, 0, 0]);
+        %         end
+        %     end
+        % end
 
         %% TODO: Gathering Formations for the defenders
-        % CoMs = zeros(2, num_c);
+        % Get time optimal trajectory for every attacker cluster
         Gammas = zeros(1, num_c);
         P_ac = cell(num_c);
         Theta_ac = cell(num_c);
-    
+        CoMs = zeros(2, num_c);
+        
         for i = 1:num_c
             a_c_i = attackers(group_tags == i);
-            % CoMs(:, i) = getCoM(a_c_i);
-            CoM = getCoM(a_c_i);
+            CoM = getCoM(a_c_i);        % get cluster's Center of Mass
+            CoMs(:, i) = CoM;
             [Gammas(i), P_ac{i}, Theta_ac{i}] = timeOptimalTraj(CoM, 100);
             hold on
             plot(P_ac{i}(:, 1), P_ac{i}(:, 2), "-b","HandleVisibility","off");
             hold off
         end
     
-        Sigma = 0;
-        % gamma
+        while true
+            Sigma = 0;
+            gamma_l = 0;
+            
+        end
     end
 
 
